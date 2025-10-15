@@ -1,6 +1,7 @@
 package calculator.model;
 
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -21,7 +22,25 @@ public class StringCalculatorTest {
     final StringCalculator stringCalculator = new StringCalculator(DEFAULT_DELIMITERS, customDelimiterManager);
 
     @Nested
-    class 기본_구분자만_사용한_경우 {
+    class 빈_값_전달 {
+        @Test
+        void 값이_null이라면_예외가_발생한다() {
+            assertThatThrownBy(() -> stringCalculator.sum(null))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("입력 값이 존재하지 않거나 비어 있습니다.");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"", " ", "   ", "\t", "\n", "\t\n"})
+        void 값이_비어_있다면_예외가_발생한다(String emptyInput) {
+            assertThatThrownBy(() -> stringCalculator.sum(emptyInput))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("입력 값이 존재하지 않거나 비어 있습니다.");
+        }
+    }
+
+    @Nested
+    class 기본_구분자만_사용 {
         @ParameterizedTest
         @MethodSource("defaultDelimiters")
         void 구분자를_통해_나눈_각_숫자의_합을_반환한다(String delimiter) {
@@ -60,7 +79,7 @@ public class StringCalculatorTest {
     }
 
     @Nested
-    class 커스텀_구분자를_사용한_경우 {
+    class 커스텀_구분자_사용 {
         @ParameterizedTest
         @ValueSource(strings = {"^", "%%", "\\", "\t", ")", "(", "()", "|"})
         void 커스텀_구분자가_선언되었을_경우_구분자에_포함한다(String customDelimiter) {
