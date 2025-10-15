@@ -1,19 +1,20 @@
 package calculator.model;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CustomDelimiterManagerImplTest {
     final String CUSTOM_DELIMITER_PREFIX = "//";
     final String CUSTOM_DELIMITER_SUFFIX = "\\n";
     final String INPUT_BODY = "1,2,3,4,5,6,7,8,9,10";
 
-    final CustomDelimiterManager customDelimiterManager = new CustomDelimiterManagerImpl(CUSTOM_DELIMITER_PREFIX, CUSTOM_DELIMITER_SUFFIX);
+    final CustomDelimiterManager customDelimiterManager = new CustomDelimiterManagerImpl(CUSTOM_DELIMITER_PREFIX,
+            CUSTOM_DELIMITER_SUFFIX);
 
     @Nested
     class 커스텀_구분자_추출 {

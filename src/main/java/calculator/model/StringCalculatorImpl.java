@@ -1,10 +1,9 @@
 package calculator.model;
 
 import calculator.util.ArrayUtils;
-import org.junit.platform.commons.util.StringUtils;
-
 import java.util.Arrays;
 import java.util.regex.Pattern;
+import org.junit.platform.commons.util.StringUtils;
 
 public class StringCalculatorImpl implements StringCalculator {
     private static final Pattern POSITIVE_NUMBER_REGEX = Pattern.compile("^\\d+$");
