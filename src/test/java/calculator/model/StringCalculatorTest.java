@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class StringCalculatorTest {
     final String[] DEFAULT_DELIMITERS = {",", ":"};
@@ -25,9 +26,9 @@ public class StringCalculatorTest {
         @MethodSource("defaultDelimiters")
         void 구분자를_통해_나눈_각_숫자의_합을_반환한다(String delimiter) {
             // given
-            int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+            long[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
             String input = concatNumbersWithDelimiter(numbers, delimiter);
-            int expectedResult = Arrays.stream(numbers)
+            long expectedResult = Arrays.stream(numbers)
                     .sum();
 
             // when
@@ -35,6 +36,19 @@ public class StringCalculatorTest {
 
             // then
             assertThat(actualResult).isEqualTo(expectedResult);
+        }
+
+        @ParameterizedTest
+        @ValueSource(longs = {-1, -100, -1000, Integer.MIN_VALUE, Long.MIN_VALUE})
+        void 음수가_포함되어_있다면_예외가_발생한다(long negative) {
+            // given
+            long[] numbers = {1, 2, 3, negative, 4, 5, 6};
+            String illegalInput = concatNumbersWithDelimiter(numbers, DEFAULT_DELIMITERS[0]);
+
+            // when & then
+            assertThatThrownBy(() -> stringCalculator.sum(illegalInput))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("음수 혹은 구분자 외 문자가 존재합니다.");
         }
 
         /**
@@ -51,12 +65,12 @@ public class StringCalculatorTest {
         @ValueSource(strings = {"^", "%%", "\\", "\t", ")", "(", "()", "|"})
         void 커스텀_구분자가_선언되었을_경우_구분자에_포함한다(String customDelimiter) {
             // given
-            int[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+            long[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
             String input = CUSTOM_DELIMITER_PREFIX +
                     customDelimiter +
                     CUSTOM_DELIMITER_SUFFIX +
                     concatNumbersWithDelimiter(numbers, customDelimiter);
-            int expectedResult = Arrays.stream(numbers)
+            long expectedResult = Arrays.stream(numbers)
                     .sum();
 
             // when
@@ -66,10 +80,22 @@ public class StringCalculatorTest {
             assertThat(actualResult).isEqualTo(expectedResult);
         }
 
+        @ParameterizedTest
+        @ValueSource(longs = {-1, -100, -1000, Integer.MIN_VALUE, Long.MIN_VALUE})
+        void 음수가_포함되어_있다면_예외가_발생한다(long negative) {
+            // given
+            long[] numbers = {1, 2, 3, negative, 4, 5, 6};
+            String customDelimiter = "CustomDelimiter";
+            String illegalInput = concatNumbersWithDelimiter(numbers, customDelimiter);
 
+            // when & then
+            assertThatThrownBy(() -> stringCalculator.sum(illegalInput))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("음수 혹은 구분자 외 문자가 존재합니다.");
+        }
     }
 
-    private String concatNumbersWithDelimiter(int[] numbers, String delimiter) {
+    private String concatNumbersWithDelimiter(long[] numbers, String delimiter) {
         return Arrays.stream(numbers)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining(delimiter));

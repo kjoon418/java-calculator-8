@@ -4,8 +4,11 @@ import calculator.util.ArrayUtils;
 import org.junit.platform.commons.util.StringUtils;
 
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class StringCalculator {
+    private static final Pattern POSITIVE_NUMBER_REGEX = Pattern.compile("^\\d+$");
+
     private final String[] defaultDelimiters;
     private final CustomDelimiterManager customDelimiterManager;
 
@@ -22,8 +25,13 @@ public class StringCalculator {
 
         String regex = getRegexToSplit(input);
         String strippedInput = customDelimiterManager.stripCustomDelimiterDeclaration(input);
+        String[] splitInputs = strippedInput.split(regex);
 
-        return Arrays.stream(strippedInput.split(regex))
+        for (String splitInput : splitInputs) {
+            validatePositiveNumber(splitInput);
+        }
+
+        return Arrays.stream(splitInputs)
                 .mapToLong(Long::parseLong)
                 .sum();
     }
@@ -44,5 +52,11 @@ public class StringCalculator {
         String[] delimiters = ArrayUtils.getExtendedArray(defaultDelimiters, customDelimiter);
 
         return DelimiterRegexBuilder.build(delimiters);
+    }
+
+    private void validatePositiveNumber(String string) {
+        if (!POSITIVE_NUMBER_REGEX.matcher(string).matches()) {
+            throw new IllegalArgumentException("음수 혹은 구분자 외 문자가 존재합니다.");
+        }
     }
 }
