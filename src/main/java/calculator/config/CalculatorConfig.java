@@ -2,7 +2,10 @@ package calculator.config;
 
 import calculator.model.CustomDelimiterManager;
 import calculator.model.CustomDelimiterManagerImpl;
+import calculator.model.DelimiterRegexBuilder;
+import calculator.model.DelimiterRegexBuilderImpl;
 import calculator.model.StringCalculator;
+import calculator.model.StringCalculatorImpl;
 import calculator.view.CalculatorView;
 
 public class CalculatorConfig {
@@ -14,9 +17,11 @@ public class CalculatorConfig {
             CUSTOM_DELIMITER_PREFIX,
             CUSTOM_DELIMITER_SUFFIX
     );
-    private static final StringCalculator STRING_CALCULATOR = new StringCalculator(
+    private static final DelimiterRegexBuilder DELIMITER_REGEX_BUILDER = new DelimiterRegexBuilderImpl();
+    private static final StringCalculator STRING_CALCULATOR = new StringCalculatorImpl(
             DEFAULT_DELIMITERS,
-            CUSTOM_DELIMITER_MANAGER
+            CUSTOM_DELIMITER_MANAGER,
+            DELIMITER_REGEX_BUILDER
     );
     private static final CalculatorView CALCULATOR_VIEW = new CalculatorView();
 

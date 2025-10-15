@@ -13,19 +13,25 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class StringCalculatorTest {
+public class StringCalculatorImplTest {
     final String[] DEFAULT_DELIMITERS = {",", ":"};
     final String CUSTOM_DELIMITER_PREFIX = "//";
     final String CUSTOM_DELIMITER_SUFFIX = "\\n";
 
     final CustomDelimiterManager customDelimiterManager = new CustomDelimiterManagerImpl(CUSTOM_DELIMITER_PREFIX, CUSTOM_DELIMITER_SUFFIX);
-    final StringCalculator stringCalculator = new StringCalculator(DEFAULT_DELIMITERS, customDelimiterManager);
+    final DelimiterRegexBuilder delimiterRegexBuilder = new DelimiterRegexBuilderImpl();
+
+    final StringCalculator stringCalculatorImpl = new StringCalculatorImpl(
+            DEFAULT_DELIMITERS,
+            customDelimiterManager,
+            delimiterRegexBuilder
+    );
 
     @Nested
     class 빈_값_전달 {
         @Test
         void 값이_null이라면_예외가_발생한다() {
-            assertThatThrownBy(() -> stringCalculator.sum(null))
+            assertThatThrownBy(() -> stringCalculatorImpl.sum(null))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("입력 값이 존재하지 않거나 비어 있습니다.");
         }
@@ -33,7 +39,7 @@ public class StringCalculatorTest {
         @ParameterizedTest
         @ValueSource(strings = {"", " ", "   ", "\t", "\n", "\t\n"})
         void 값이_비어_있다면_예외가_발생한다(String emptyInput) {
-            assertThatThrownBy(() -> stringCalculator.sum(emptyInput))
+            assertThatThrownBy(() -> stringCalculatorImpl.sum(emptyInput))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("입력 값이 존재하지 않거나 비어 있습니다.");
         }
@@ -51,7 +57,7 @@ public class StringCalculatorTest {
                     .sum();
 
             // when
-            long actualResult = stringCalculator.sum(input);
+            long actualResult = stringCalculatorImpl.sum(input);
 
             // then
             assertThat(actualResult).isEqualTo(expectedResult);
@@ -65,7 +71,7 @@ public class StringCalculatorTest {
             String illegalInput = concatNumbersWithDelimiter(numbers, DEFAULT_DELIMITERS[0]);
 
             // when & then
-            assertThatThrownBy(() -> stringCalculator.sum(illegalInput))
+            assertThatThrownBy(() -> stringCalculatorImpl.sum(illegalInput))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("음수 혹은 구분자 외 문자가 존재합니다.");
         }
@@ -93,7 +99,7 @@ public class StringCalculatorTest {
                     .sum();
 
             // when
-            long actualResult = stringCalculator.sum(input);
+            long actualResult = stringCalculatorImpl.sum(input);
 
             // then
             assertThat(actualResult).isEqualTo(expectedResult);
@@ -108,7 +114,7 @@ public class StringCalculatorTest {
             String illegalInput = concatNumbersWithDelimiter(numbers, customDelimiter);
 
             // when & then
-            assertThatThrownBy(() -> stringCalculator.sum(illegalInput))
+            assertThatThrownBy(() -> stringCalculatorImpl.sum(illegalInput))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("음수 혹은 구분자 외 문자가 존재합니다.");
         }

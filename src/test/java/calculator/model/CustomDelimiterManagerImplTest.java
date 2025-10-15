@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class CustomDelimiterManagerTest {
+class CustomDelimiterManagerImplTest {
     final String CUSTOM_DELIMITER_PREFIX = "//";
     final String CUSTOM_DELIMITER_SUFFIX = "\\n";
     final String INPUT_BODY = "1,2,3,4,5,6,7,8,9,10";
