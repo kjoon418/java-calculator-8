@@ -74,6 +74,19 @@ public class StringCalculatorImplTest {
                     .hasMessage("음수 혹은 구분자 외 문자가 존재합니다.");
         }
 
+        @ParameterizedTest
+        @ValueSource(strings = {"a", "abc", " ", "\\", "a b"})
+        void 커스텀_구분자나_기본_구분자_외_문자가_포함되어_있다면_예외가_발생한다(String illegalString) {
+            // given
+            long[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+            String illegalInput = concatNumbersWithDelimiter(numbers, illegalString);
+
+            // when & then
+            assertThatThrownBy(() -> stringCalculatorImpl.sum(illegalInput))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("음수 혹은 구분자 외 문자가 존재합니다.");
+        }
+
         /**
          * 테스트 케이스에 defaultDelimiters를 제공하기 위한 메서드
          */
@@ -110,6 +123,24 @@ public class StringCalculatorImplTest {
             long[] numbers = {1, 2, 3, negative, 4, 5, 6};
             String customDelimiter = "CustomDelimiter";
             String illegalInput = concatNumbersWithDelimiter(numbers, customDelimiter);
+
+            // when & then
+            assertThatThrownBy(() -> stringCalculatorImpl.sum(illegalInput))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("음수 혹은 구분자 외 문자가 존재합니다.");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"a", "abc", " ", "\\", "a b"})
+        void 커스텀_구분자나_기본_구분자_외_문자가_포함되어_있다면_예외가_발생한다(String illegalString) {
+            // given
+            long[] numbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+            String customDelimiter = "CustomDelimiter";
+
+            String illegalInput = CUSTOM_DELIMITER_PREFIX +
+                    customDelimiter +
+                    CUSTOM_DELIMITER_SUFFIX +
+                    concatNumbersWithDelimiter(numbers, illegalString);
 
             // when & then
             assertThatThrownBy(() -> stringCalculatorImpl.sum(illegalInput))
