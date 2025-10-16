@@ -19,12 +19,10 @@ public class StringCalculatorImplTest {
 
     final CustomDelimiterManager customDelimiterManager = new CustomDelimiterManagerImpl(CUSTOM_DELIMITER_PREFIX,
             CUSTOM_DELIMITER_SUFFIX);
-    final DelimiterRegexBuilder delimiterRegexBuilder = new DelimiterRegexBuilderImpl();
 
     final StringCalculator stringCalculatorImpl = new StringCalculatorImpl(
             DEFAULT_DELIMITERS,
-            customDelimiterManager,
-            delimiterRegexBuilder
+            customDelimiterManager
     );
 
     @Nested

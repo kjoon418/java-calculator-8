@@ -3,6 +3,7 @@ package calculator.model;
 import calculator.util.ArrayUtils;
 import java.util.Arrays;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.junit.platform.commons.util.StringUtils;
 
 public class StringCalculatorImpl implements StringCalculator {
@@ -10,16 +11,13 @@ public class StringCalculatorImpl implements StringCalculator {
 
     private final String[] defaultDelimiters;
     private final CustomDelimiterManager customDelimiterManager;
-    private final DelimiterRegexBuilder delimiterRegexBuilder;
 
     public StringCalculatorImpl(
             String[] defaultDelimiters,
-            CustomDelimiterManager customDelimiterManager,
-            DelimiterRegexBuilder delimiterRegexBuilder
+            CustomDelimiterManager customDelimiterManager
     ) {
         this.defaultDelimiters = defaultDelimiters;
         this.customDelimiterManager = customDelimiterManager;
-        this.delimiterRegexBuilder = delimiterRegexBuilder;
     }
 
     @Override
@@ -49,12 +47,18 @@ public class StringCalculatorImpl implements StringCalculator {
         String customDelimiter = customDelimiterManager.extractCustomDelimiter(input);
 
         if (customDelimiter == null) {
-            return delimiterRegexBuilder.build(defaultDelimiters);
+            return buildSafetyRegex(defaultDelimiters);
         }
 
         String[] delimiters = ArrayUtils.getExtendedArray(defaultDelimiters, customDelimiter);
 
-        return delimiterRegexBuilder.build(delimiters);
+        return buildSafetyRegex(delimiters);
+    }
+
+    private String buildSafetyRegex(String[] delimiters) {
+        return Arrays.stream(delimiters)
+                .map(Pattern::quote)
+                .collect(Collectors.joining("|"));
     }
 
     private void validatePositiveNumber(String string) {
