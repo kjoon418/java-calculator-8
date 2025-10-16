@@ -50,7 +50,7 @@ public class StringCalculatorImpl implements StringCalculator {
             return buildSafetyRegex(defaultDelimiters);
         }
 
-        String[] delimiters = ArrayUtils.getExtendedArray(defaultDelimiters, customDelimiter);
+        String[] delimiters = ArrayUtils.getAppendedArray(defaultDelimiters, customDelimiter);
 
         return buildSafetyRegex(delimiters);
     }
