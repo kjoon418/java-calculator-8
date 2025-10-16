@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.junit.platform.commons.util.StringUtils;
 
 public class StringCalculatorImpl implements StringCalculator {
-    private static final Pattern POSITIVE_NUMBER_REGEX = Pattern.compile("^\\d+$");
+    private static final Pattern POSITIVE_NUMBER_PATTERN = Pattern.compile("^\\d+$");
 
     private final String[] defaultDelimiters;
     private final CustomDelimiterManager customDelimiterManager;
@@ -62,7 +62,7 @@ public class StringCalculatorImpl implements StringCalculator {
     }
 
     private void validatePositiveNumber(String string) {
-        if (!POSITIVE_NUMBER_REGEX.matcher(string).matches()) {
+        if (!POSITIVE_NUMBER_PATTERN.matcher(string).matches()) {
             throw new IllegalArgumentException("음수 혹은 구분자 외 문자가 존재합니다.");
         }
     }
