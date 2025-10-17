@@ -1,5 +1,7 @@
 package calculator.model;
 
+import calculator.dto.CalculatorInput;
+
 public interface StringCalculator {
-    long sum(String input);
+    long sum(CalculatorInput input);
 }

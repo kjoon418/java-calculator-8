@@ -3,47 +3,89 @@ package calculator.model;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import calculator.dto.CalculatorInput;
+import java.util.List;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class CustomDelimiterManagerImplTest {
+class InputParserImplTest {
+    final List<String> DEFAULT_DELIMITERS = List.of("//", "\\n");
     final String CUSTOM_DELIMITER_PREFIX = "//";
     final String CUSTOM_DELIMITER_SUFFIX = "\\n";
     final String INPUT_BODY = "1,2,3,4,5,6,7,8,9,10";
 
-    final CustomDelimiterManager customDelimiterManager = new CustomDelimiterManagerImpl(CUSTOM_DELIMITER_PREFIX,
-            CUSTOM_DELIMITER_SUFFIX);
+    final InputParser inputParser = new InputParserImpl(
+            DEFAULT_DELIMITERS,
+            CUSTOM_DELIMITER_PREFIX,
+            CUSTOM_DELIMITER_SUFFIX
+    );
 
     @Nested
-    class 커스텀_구분자_추출 {
+    class 문자열_입력을_DTO로_파싱한다 {
+        @Test
+        void 커스텀_구분자가_선언되지_않았다면_구분자_목록을_기본_구분자로만_구성한다() {
+            // given
+            String stringInput = INPUT_BODY;
+
+            // when
+            CalculatorInput parsedInput = inputParser.parse(stringInput);
+
+            // then
+            assertThat(parsedInput.delimiters())
+                    .containsExactlyInAnyOrderElementsOf(DEFAULT_DELIMITERS);
+        }
+
         @ParameterizedTest
         @ValueSource(strings = {" ", ".", "-", "\t", "\\", "abc"})
-        void 입력으로부터_커스텀_구분자를_추출한다(String customDelimiter) {
+        void 커스텀_구분자가_선언_되었다면_구분자_목록에_추가한다(String customDelimiter) {
             // given
-            String input = CUSTOM_DELIMITER_PREFIX +
+            String stringInput = CUSTOM_DELIMITER_PREFIX +
                     customDelimiter +
                     CUSTOM_DELIMITER_SUFFIX +
                     INPUT_BODY;
 
             // when
-            String actualResult = customDelimiterManager.extractCustomDelimiter(input);
+            CalculatorInput parsedInput = inputParser.parse(stringInput);
 
             // then
-            assertThat(actualResult).isEqualTo(customDelimiter);
+            assertThat(parsedInput.delimiters()).containsAll(DEFAULT_DELIMITERS);
+            assertThat(parsedInput.delimiters()).contains(customDelimiter);
         }
 
-        @Test
-        void 커스텀_구분자_선언부가_없다면_null을_반환한다() {
+        @ParameterizedTest
+        @ValueSource(strings = {" ", ".", "-", "\t", "\\", "abc"})
+        void 커스텀_구분자_선언부를_제거한_본문을_담는다(String customDelimiter) {
             // given
-            String input = INPUT_BODY;
+            String stringInput = CUSTOM_DELIMITER_PREFIX +
+                    customDelimiter +
+                    CUSTOM_DELIMITER_SUFFIX +
+                    INPUT_BODY;
 
             // when
-            String actualResult = customDelimiterManager.extractCustomDelimiter(input);
+            CalculatorInput parsedInput = inputParser.parse(stringInput);
 
             // then
-            assertThat(actualResult).isNull();
+            assertThat(parsedInput.delimitedValue()).isEqualTo(INPUT_BODY);
+        }
+    }
+
+    @Nested
+    class 입력을_검증한다 {
+        @Test
+        void 입력_값이_null이라면_예외가_발생한다() {
+            assertThatThrownBy(() -> inputParser.parse(null))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("입력 값이 존재하지 않거나 비어 있습니다.");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"", " ", "   ", "\t", "\n", "\t\n"})
+        void 입력_값이_비어_있다면_예외가_발생한다(String emptyInput) {
+            assertThatThrownBy(() -> inputParser.parse(emptyInput))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("입력 값이 존재하지 않거나 비어 있습니다.");
         }
 
         @Test
@@ -55,7 +97,7 @@ class CustomDelimiterManagerImplTest {
                     INPUT_BODY;
 
             // when & then
-            assertThatThrownBy(() -> customDelimiterManager.extractCustomDelimiter(illegalInput))
+            assertThatThrownBy(() -> inputParser.parse(illegalInput))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("커스텀 구분자의 접두사 혹은 접미사가 누락되었습니다.");
         }
@@ -69,7 +111,7 @@ class CustomDelimiterManagerImplTest {
                     INPUT_BODY;
 
             // when & then
-            assertThatThrownBy(() -> customDelimiterManager.extractCustomDelimiter(illegalInput))
+            assertThatThrownBy(() -> inputParser.parse(illegalInput))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("커스텀 구분자의 접두사 혹은 접미사가 누락되었습니다.");
         }
@@ -84,7 +126,7 @@ class CustomDelimiterManagerImplTest {
                     INPUT_BODY;
 
             // when & then
-            assertThatThrownBy(() -> customDelimiterManager.extractCustomDelimiter(illegalInput))
+            assertThatThrownBy(() -> inputParser.parse(illegalInput))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("빈 커스텀 구분자입니다.");
         }
@@ -101,28 +143,9 @@ class CustomDelimiterManagerImplTest {
                     INPUT_BODY;
 
             // when & then
-            assertThatThrownBy(() -> customDelimiterManager.extractCustomDelimiter(illegalInput))
+            assertThatThrownBy(() -> inputParser.parse(illegalInput))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("커스텀 구분자 접두사는 입력 맨 앞에 와야 합니다.");
-        }
-    }
-
-    @Nested
-    class 커스텀_구분자_선언부_제거 {
-        @Test
-        void 입력에서_선언부를_제거한_나머지를_반환한다() {
-            // given
-            String customDelimiter = "CustomDelimiter";
-            String input = CUSTOM_DELIMITER_PREFIX +
-                    customDelimiter +
-                    CUSTOM_DELIMITER_SUFFIX +
-                    INPUT_BODY;
-
-            // when
-            String actualResult = customDelimiterManager.stripCustomDelimiterDeclaration(input);
-
-            // then
-            assertThat(actualResult).isEqualTo(INPUT_BODY);
         }
     }
 }

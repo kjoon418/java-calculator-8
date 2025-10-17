@@ -1,62 +1,33 @@
 package calculator.model;
 
-import calculator.util.ArrayUtils;
+import calculator.dto.CalculatorInput;
 import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.junit.platform.commons.util.StringUtils;
 
 public class StringCalculatorImpl implements StringCalculator {
     private static final Pattern POSITIVE_NUMBER_PATTERN = Pattern.compile("^\\d+$");
 
-    private final String[] defaultDelimiters;
-    private final CustomDelimiterManager customDelimiterManager;
-
-    public StringCalculatorImpl(
-            String[] defaultDelimiters,
-            CustomDelimiterManager customDelimiterManager
-    ) {
-        this.defaultDelimiters = defaultDelimiters;
-        this.customDelimiterManager = customDelimiterManager;
-    }
-
     @Override
-    public long sum(String input) {
-        validateInputNotEmpty(input);
+    public long sum(CalculatorInput input) {
+        List<String> delimiters = input.delimiters();
+        String delimitedValue = input.delimitedValue();
 
-        String regex = getRegexToSplit(input);
-        String strippedInput = customDelimiterManager.stripCustomDelimiterDeclaration(input);
-        String[] splitInputs = strippedInput.split(regex);
+        String regex = getRegexToSplit(delimiters);
+        String[] splitValues = delimitedValue.split(regex);
 
-        for (String splitInput : splitInputs) {
-            validatePositiveNumber(splitInput);
+        for (String splitValue : splitValues) {
+            validatePositiveNumber(splitValue);
         }
 
-        return Arrays.stream(splitInputs)
+        return Arrays.stream(splitValues)
                 .mapToLong(Long::parseLong)
                 .sum();
     }
 
-    private void validateInputNotEmpty(String input) {
-        if (StringUtils.isBlank(input)) {
-            throw new IllegalArgumentException("입력 값이 존재하지 않거나 비어 있습니다.");
-        }
-    }
-
-    private String getRegexToSplit(String input) {
-        String customDelimiter = customDelimiterManager.extractCustomDelimiter(input);
-
-        if (customDelimiter == null) {
-            return buildSafetyRegex(defaultDelimiters);
-        }
-
-        String[] delimiters = ArrayUtils.getAppendedArray(defaultDelimiters, customDelimiter);
-
-        return buildSafetyRegex(delimiters);
-    }
-
-    private String buildSafetyRegex(String[] delimiters) {
-        return Arrays.stream(delimiters)
+    private String getRegexToSplit(List<String> delimiters) {
+        return delimiters.stream()
                 .map(Pattern::quote)
                 .collect(Collectors.joining("|"));
     }
