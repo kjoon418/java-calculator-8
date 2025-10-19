@@ -59,12 +59,12 @@ public class InputParserImpl implements InputParser {
         return !rawInput.contains(customDelimiterPrefix) && !rawInput.contains(customDelimiterSuffix);
     }
 
-    private void validateCustomDelimiterDeclaration(String input) {
-        if (!input.contains(customDelimiterPrefix) || !input.contains(customDelimiterSuffix)) {
+    private void validateCustomDelimiterDeclaration(String rawInput) {
+        if (!rawInput.contains(customDelimiterPrefix) || !rawInput.contains(customDelimiterSuffix)) {
             throw new IllegalArgumentException("커스텀 구분자의 접두사 혹은 접미사가 누락되었습니다.");
         }
 
-        if (input.contains(customDelimiterPrefix) && !input.startsWith(customDelimiterPrefix)) {
+        if (rawInput.contains(customDelimiterPrefix) && !rawInput.startsWith(customDelimiterPrefix)) {
             throw new IllegalArgumentException("커스텀 구분자 접두사는 입력 맨 앞에 와야 합니다.");
         }
     }
