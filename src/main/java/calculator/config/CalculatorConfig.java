@@ -15,7 +15,6 @@ public class CalculatorConfig {
 
     private static final CalculatorView CALCULATOR_VIEW = new CalculatorView();
     private static final StringCalculator STRING_CALCULATOR = new StringCalculatorImpl();
-
     private static final InputParser INPUT_PARSER = new InputParserImpl(
             DEFAULT_DELIMITERS,
             CUSTOM_DELIMITER_PREFIX,
